@@ -26,3 +26,40 @@ SELECT
     DENSE_RANK() OVER (ORDER BY total_laid_off DESC) AS dense_ryank
 FROM 
     layoffs_test2;
+-- Calculate Row Number for Each Industry
+-- Assign a row number to each company within each industry based on total layoffs in descending order.
+SELECT 
+    company, 
+    industry, 
+    total_laid_off, 
+    ROW_NUMBER() OVER (PARTITION BY industry ORDER BY total_laid_off DESC) AS row_num
+FROM 
+    layoffs_test2;
+SELECT 
+    company, 
+    industry, 
+    total_laid_off, 
+    SUM(total_laid_off) OVER (PARTITION BY industry ORDER BY total_laid_off DESC) AS cumulative_sum
+FROM 
+    layoffs_test2;
+
+SELECT 
+    company, YEAR(date), SUM(total_laid_off)
+FROM
+    layoffs_test2
+  
+GROUP BY company , YEAR(date)
+  order by SUM(total_laid_off) desc ;
+  -- Calculate Cumulative Sum of Layoffs by Year
+  SELECT 
+    company, 
+    YEAR(date) AS year, 
+    SUM(total_laid_off) AS total_laid_off,
+    SUM(SUM(total_laid_off)) OVER (PARTITION BY YEAR(date) ORDER BY SUM(total_laid_off) DESC) AS cumulative_sum
+FROM
+    layoffs_test2
+GROUP BY 
+    company, 
+    YEAR(date)
+ORDER BY 
+    year, cumulative_sum;
